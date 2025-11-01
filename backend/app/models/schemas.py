@@ -8,15 +8,19 @@ class LocationInput(BaseModel):
     location: Optional[str] = Field(
         None, 
         description="Address, city, or coordinates. If null, uses default test location.",
-        examples=["New York, NY", "90210", "Brooklyn"]
+        examples=["Brooklyn, NY", "90210", "Central Park"]
     )
 
 
 class Coordinates(BaseModel):
-    """Geographic coordinates."""
+    """Resolved geographic coordinates."""
     latitude: float = Field(..., ge=-90, le=90, description="Latitude in decimal degrees")
     longitude: float = Field(..., ge=-180, le=180, description="Longitude in decimal degrees")
-    location_name: str = Field(..., description="Resolved location name")
+    location_name: str = Field(..., description="Full resolved location name")
+    confidence: Optional[str] = Field(
+        "high",
+        description="Geocoding confidence: high | medium | low"
+    )
 
 
 class CurrentWeather(BaseModel):
@@ -39,6 +43,7 @@ class WeatherSuggestion(BaseModel):
 
 class WeatherResponse(BaseModel):
     """Complete weather response with suggestions."""
+    query: str = Field(..., description="Original user query")  # ← ADDED
     location: Coordinates
     current_weather: CurrentWeather
     suggestions: list[WeatherSuggestion]
