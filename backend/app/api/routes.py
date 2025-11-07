@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
-from app.models.schemas import LocationInput, WeatherResponse
+from app.models.schemas import LocationInput, WeatherResponse, LocationDisambiguationResponse
 from app.services import geocoding_service, weather_service
 from app.services.geocoding_service import GeocodingError
 from app.services.weather_service import WeatherAPIError
@@ -76,4 +76,55 @@ async def get_current_weather(location_input: LocationInput):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An unexpected error occurred. Please try again."
+        )
+    
+@router.post("/location/disambiguate", response_model=LocationDisambiguationResponse)
+async def disambiguate_location(location_input: LocationInput):
+    """
+    Search for locations and return multiple matches for disambiguation.
+    
+    Uses smart confidence filtering:
+        - If high-confidence match exists → returns ONLY that (no disambiguation)
+        - If multiple medium-confidence → returns all (disambiguation needed)
+        - Filters out low-confidence noise
+    
+    ...
+    """
+    from app.models.schemas import LocationDisambiguationResponse
+    
+    try:
+        logger.info(f"Searching for locations matching: {location_input.location}")
+        
+        # Search with smart confidence filtering enabled
+        matches = await geocoding_service.search_locations(
+            location_input.location or "",
+            limit=5,
+            filter_by_confidence=True  
+        )
+        
+        # Determine if ambiguous
+        is_ambiguous = len(matches) > 1
+        
+        logger.info(
+            f"Found {len(matches)} filtered matches, "
+            f"ambiguous={is_ambiguous}"
+        )
+        
+        return LocationDisambiguationResponse(
+            query=location_input.location or "",
+            matches=matches,
+            is_ambiguous=is_ambiguous
+        )
+        
+    except GeocodingError as e:
+        logger.error(f"Geocoding failed: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Could not search for location: {str(e)}"
+        )
+    except Exception as e:
+        logger.error(f"Unexpected error: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected error occurred while searching locations."
         )

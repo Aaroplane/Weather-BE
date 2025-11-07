@@ -22,6 +22,35 @@ class Coordinates(BaseModel):
         description="Geocoding confidence: high | medium | low"
     )
 
+# Add after the Coordinates class
+
+class LocationOption(BaseModel):
+    """A potential location match for disambiguation."""
+    latitude: float = Field(..., ge=-90, le=90)
+    longitude: float = Field(..., ge=-180, le=180)
+    location_name: str = Field(..., description="Full display name")
+    short_name: str = Field(..., description="Short name (e.g., 'Brooklyn, NY')")
+    confidence: str = Field(..., description="high | medium | low")
+    location_type: str = Field(..., description="Type: city, state, country, etc.")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "latitude": 40.6782,
+                "longitude": -73.9442,
+                "location_name": "Brooklyn, Kings County, New York, United States",
+                "short_name": "Brooklyn, NY",
+                "confidence": "high",
+                "location_type": "city"
+            }
+        }
+
+
+class LocationDisambiguationResponse(BaseModel):
+    """Response when multiple locations match the query."""
+    query: str = Field(..., description="Original search query")
+    matches: list[LocationOption] = Field(..., description="Potential location matches")
+    is_ambiguous: bool = Field(..., description="True if multiple good matches found")
 
 class CurrentWeather(BaseModel):
     """Current weather conditions."""
@@ -43,7 +72,7 @@ class WeatherSuggestion(BaseModel):
 
 class WeatherResponse(BaseModel):
     """Complete weather response with suggestions."""
-    query: str = Field(..., description="Original user query")  # ← ADDED
+    query: str = Field(..., description="Original user query")
     location: Coordinates
     current_weather: CurrentWeather
     suggestions: list[WeatherSuggestion]
