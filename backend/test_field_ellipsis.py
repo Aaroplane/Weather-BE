@@ -1,4 +1,3 @@
-"""Demonstrate how ... works in Pydantic Fields."""
 from pydantic import BaseModel, Field, ValidationError
 from typing import Optional
 

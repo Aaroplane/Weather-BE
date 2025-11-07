@@ -123,12 +123,15 @@ async def search_locations(
         )
         all_options.append(option)
     
+    # Deduplicate (remove near-duplicates)
+    deduplicated = _deduplicate_locations(all_options)
+    
     # Apply smart confidence filtering if enabled
     if filter_by_confidence:
-        filtered = _apply_confidence_filter(all_options, limit)
+        filtered = _apply_confidence_filter(deduplicated, limit)
         return filtered
     else:
-        return all_options[:limit]
+        return deduplicated[:limit]
 
 
 def _apply_confidence_filter(
@@ -173,6 +176,152 @@ def _apply_confidence_filter(
         )
         return result
 
+def _deduplicate_locations(options: list[LocationOption]) -> list[LocationOption]:
+    """
+    Remove duplicate locations that refer to the same place.
+    
+    Problem:
+        Nominatim returns multiple results for "Brooklyn":
+        - Brooklyn (neighborhood center): 40.6526, -73.9497
+        - Brooklyn (city hall): 40.6782, -73.9442
+        - Brooklyn, Kings County: 40.6500, -73.9500
+        
+        These all refer to THE SAME PLACE but with slight coordinate differences.
+    
+    Solution:
+        1. Group locations within ~5km radius
+        2. Keep the best result from each group
+        3. Boost confidence if multiple results agree
+    
+    Args:
+        options: List of LocationOption objects (may have duplicates)
+    
+    Returns:
+        Deduplicated list of LocationOption objects
+    """
+    if len(options) <= 1:
+        return options
+    
+    # Group locations by proximity
+    groups = []
+    
+    for option in options:
+        # Try to find existing group this belongs to
+        added_to_group = False
+        
+        for group in groups:
+            # Check if this location is close to any in the group
+            for existing in group:
+                if _are_locations_similar(option, existing):
+                    group.append(option)
+                    added_to_group = True
+                    break
+            
+            if added_to_group:
+                break
+        
+        # If not added to any group, create new group
+        if not added_to_group:
+            groups.append([option])
+    
+    # From each group, select the best representative
+    deduplicated = []
+    for group in groups:
+        best = _select_best_from_group(group)
+        deduplicated.append(best)
+    
+    logger.info(
+        f"Deduplication: {len(options)} results → {len(groups)} groups → "
+        f"{len(deduplicated)} unique locations"
+    )
+    
+    return deduplicated
+
+
+def _are_locations_similar(loc1: LocationOption, loc2: LocationOption) -> bool:
+    """
+    Check if two locations refer to approximately the same place.
+    """
+    lat_diff = abs(loc1.latitude - loc2.latitude)
+    lon_diff = abs(loc1.longitude - loc2.longitude)
+    
+    distance_km = ((lat_diff * 111) ** 2 + (lon_diff * 85) ** 2) ** 0.5
+    
+    SIMILARITY_THRESHOLD_KM = 5.0  # 5km radius
+    
+    is_similar = distance_km < SIMILARITY_THRESHOLD_KM
+    
+    if is_similar:
+        logger.debug(
+            f"Similar locations detected ({distance_km:.2f}km apart): "
+            f"{loc1.short_name} vs {loc2.short_name}"
+        )
+    
+    return is_similar
+
+
+def _select_best_from_group(group: list[LocationOption]) -> LocationOption:
+    """
+    Select the best representative from a group of duplicate locations.
+    """
+    if len(group) == 1:
+        return group[0]
+    
+    # Define type priority (higher = better)
+    type_priority = {
+        "city": 100,
+        "town": 90,
+        "village": 80,
+        "neighbourhood": 70,
+        "suburb": 60,
+        "administrative": 50,
+        "county": 40,
+        "state": 30,
+        "country": 20
+    }
+    
+    # Score each option
+    scored = []
+    for option in group:
+        score = 0
+        
+        # Type priority
+        score += type_priority.get(option.location_type, 0)
+        
+        # Confidence boost
+        if option.confidence == "high":
+            score += 50
+        elif option.confidence == "medium":
+            score += 25
+        
+        # Prefer shorter names (more concise)
+        score -= len(option.location_name) * 0.1
+        
+        scored.append((score, option))
+    
+    # Sort by score (highest first)
+    scored.sort(key=lambda x: x[0], reverse=True)
+    best_option = scored[0][1]
+    
+    # Boost confidence if multiple results agree on same location
+    if len(group) >= 2:
+        if best_option.confidence == "medium":
+            # Create new option with boosted confidence
+            from app.models.schemas import LocationOption
+            best_option = LocationOption(
+                latitude=best_option.latitude,
+                longitude=best_option.longitude,
+                location_name=best_option.location_name,
+                short_name=best_option.short_name,
+                confidence="high",  # ← BOOSTED
+                location_type=best_option.location_type
+            )
+            logger.info(
+                f"Confidence boosted to HIGH for {best_option.short_name} "
+                f"(multiple results agree)"
+            )
+    
+    return best_option
 
 def _extract_short_name(geocode_result: dict) -> str:
     

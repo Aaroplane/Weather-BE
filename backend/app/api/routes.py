@@ -27,7 +27,6 @@ async def health_check():
 async def get_current_weather(location_input: LocationInput):
     try:
         # Converts "Brooklyn, NY" → Coordinates(lat, lon)
-        # If location is null, uses default from .env
         logger.info(f"Geocoding location: {location_input.location}")
         
         coords = await geocoding_service.geocode(location_input.location)

@@ -1,4 +1,3 @@
-"""Test location disambiguation feature."""
 import asyncio
 import httpx
 
