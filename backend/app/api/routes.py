@@ -26,7 +26,6 @@ async def health_check():
 @router.post("/weather/current", response_model=WeatherResponse)
 async def get_current_weather(location_input: LocationInput):
     try:
-        # STEP 1: Geocode location
         # Converts "Brooklyn, NY" → Coordinates(lat, lon)
         # If location is null, uses default from .env
         logger.info(f"Geocoding location: {location_input.location}")
@@ -46,7 +45,6 @@ async def get_current_weather(location_input: LocationInput):
             detail=f"Could not find location: {str(e)}"
         )
     try:
-        # STEP 2: Fetch weather + generate suggestions
         logger.info(
             f"Fetching weather for ({coords.latitude}, {coords.longitude})"
         )

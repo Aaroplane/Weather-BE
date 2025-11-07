@@ -11,20 +11,18 @@ app = FastAPI(
     title=settings.app_name,
     description="AI-powered weather monitoring and suggestion system",
     version="1.0.0",
-    docs_url="/docs",  # Swagger UI at http://localhost:8000/docs
-    redoc_url="/redoc"  # ReDoc at http://localhost:8000/redoc
+    docs_url="/docs",  
+    redoc_url="/redoc"  
 )
 
-# Configure CORS (allows React frontend to call API)
-# Parse allowed origins from settings
 allowed_origins = settings.allowed_origins.split(",")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,  # React dev server
+    allow_origins=allowed_origins,  
     allow_credentials=True,
-    allow_methods=["*"],  # Allow all HTTP methods
-    allow_headers=["*"],  # Allow all headers
+    allow_methods=["*"],  
+    allow_headers=["*"], 
 )
 
 # Register routes

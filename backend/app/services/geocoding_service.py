@@ -10,24 +10,7 @@ class GeocodingError(Exception):
 
 
 async def geocode(location: Optional[str]) -> Coordinates:
-    """
-    Convert a location string to GPS coordinates.
-    
-    Args:
-        location: Address, city, or place name (e.g., "Brooklyn, NY")
-                  If None, returns default test location from config
-    
-    Returns:
-        Coordinates object with lat, lon, and resolved name
-    
-    Raises:
-        GeocodingError: If location cannot be found or API fails
-    
-    Examples:
-        >>> coords = await geocode("Brooklyn, NY")
-        >>> print(coords.latitude, coords.longitude)
-        40.6782 -73.9442
-    """
+  
     settings = get_settings()
     
     # Handle null input - use default test location
@@ -45,13 +28,13 @@ async def geocode(location: Optional[str]) -> Coordinates:
             response = await client.get(
                 f"{settings.nominatim_base_url}/search",
                 params={
-                    "q": location,           # Search query
-                    "format": "json",        # Response format
-                    "limit": 1,              # Only return best match
-                    "addressdetails": 1      # Include full address breakdown
+                    "q": location,           
+                    "format": "json",        
+                    "limit": 1,             
+                    "addressdetails": 1      
                 },
                 headers={
-                    "User-Agent": "WeatherAgentApp/1.0"  # Required by Nominatim
+                    "User-Agent": "WeatherAgentApp/1.0"  
                 },
                 timeout=10.0
             )
@@ -62,7 +45,6 @@ async def geocode(location: Optional[str]) -> Coordinates:
         except httpx.HTTPError as e:
             raise GeocodingError(f"Geocoding API error: {str(e)}")
     
-    # Parse response
     data = response.json()
     
     if not data or len(data) == 0:
@@ -82,17 +64,7 @@ async def geocode(location: Optional[str]) -> Coordinates:
 
 
 def _determine_confidence(geocode_result: dict) -> str:
-    """
-    Determine how confident we are in the geocoding result.
-    
-    Why this matters:
-        - "New York" → might be NY state or NYC (medium confidence)
-        - "Empire State Building" → exact address (high confidence)
-        - "Springfield" → exists in 30+ states (low confidence without state)
-    
-    This will help the frontend show warnings like:
-        "⚠️ Multiple locations found - showing results for Springfield, IL"
-    """
+
     result_type = geocode_result.get("type", "")
     osm_type = geocode_result.get("osm_type", "")
     

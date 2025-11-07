@@ -1,4 +1,3 @@
-"""Setup verification script."""
 import sys
 from app.config import get_settings
 
