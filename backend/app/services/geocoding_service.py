@@ -70,13 +70,14 @@ async def geocode(location: Optional[str]) -> Coordinates:
 async def search_locations(
     query: str, 
     limit: int = 5,
-    filter_by_confidence: bool = True 
+    filter_by_confidence: bool = True
 ) -> list[LocationOption]:
+    """Search for multiple location matches (for disambiguation)."""
+    
     from app.models.schemas import LocationOption
     
     settings = get_settings()
     
-    # Handle empty query
     if not query or query.strip() == "":
         return []
     
@@ -87,7 +88,7 @@ async def search_locations(
                 params={
                     "q": query,
                     "format": "json",
-                    "limit": max(limit, 10), 
+                    "limit": max(limit, 10),
                     "addressdetails": 1
                 },
                 headers={
@@ -123,16 +124,50 @@ async def search_locations(
         )
         all_options.append(option)
     
-    # Deduplicate (remove near-duplicates)
-    deduplicated = _deduplicate_locations(all_options)
+    relevant = _filter_relevant_results(all_options, query)
     
-    # Apply smart confidence filtering if enabled
+    deduplicated = _deduplicate_locations(relevant)
+    
     if filter_by_confidence:
         filtered = _apply_confidence_filter(deduplicated, limit)
         return filtered
     else:
         return deduplicated[:limit]
 
+def _filter_relevant_results(
+    options: list[LocationOption],
+    original_query: str
+) -> list[LocationOption]:
+   
+    if not options or not original_query:
+        return options
+    
+    query_lower = original_query.lower().strip()
+    query_words = set(query_lower.split())
+    
+    filtered = []
+    
+    for option in options:
+        # Extract searchable text from location
+        searchable_text = f"{option.short_name} {option.location_name}".lower()
+        location_words = set(searchable_text.split())
+        
+        has_match = bool(query_words & location_words)
+        
+        is_substring = query_lower in searchable_text
+        
+        if has_match or is_substring:
+            filtered.append(option)
+            logger.debug(f"Relevant: {option.short_name} (matches query '{original_query}')")
+        else:
+            logger.debug(f"Filtered out: {option.short_name} (doesn't match query '{original_query}')")
+    
+    logger.info(
+        f"Relevance filter: {len(options)} results → {len(filtered)} relevant "
+        f"(removed {len(options) - len(filtered)} irrelevant)"
+    )
+    
+    return filtered
 
 def _apply_confidence_filter(
     options: list[LocationOption], 
@@ -177,28 +212,7 @@ def _apply_confidence_filter(
         return result
 
 def _deduplicate_locations(options: list[LocationOption]) -> list[LocationOption]:
-    """
-    Remove duplicate locations that refer to the same place.
-    
-    Problem:
-        Nominatim returns multiple results for "Brooklyn":
-        - Brooklyn (neighborhood center): 40.6526, -73.9497
-        - Brooklyn (city hall): 40.6782, -73.9442
-        - Brooklyn, Kings County: 40.6500, -73.9500
-        
-        These all refer to THE SAME PLACE but with slight coordinate differences.
-    
-    Solution:
-        1. Group locations within ~5km radius
-        2. Keep the best result from each group
-        3. Boost confidence if multiple results agree
-    
-    Args:
-        options: List of LocationOption objects (may have duplicates)
-    
-    Returns:
-        Deduplicated list of LocationOption objects
-    """
+
     if len(options) <= 1:
         return options
     
@@ -206,11 +220,9 @@ def _deduplicate_locations(options: list[LocationOption]) -> list[LocationOption
     groups = []
     
     for option in options:
-        # Try to find existing group this belongs to
         added_to_group = False
         
         for group in groups:
-            # Check if this location is close to any in the group
             for existing in group:
                 if _are_locations_similar(option, existing):
                     group.append(option)
@@ -220,11 +232,9 @@ def _deduplicate_locations(options: list[LocationOption]) -> list[LocationOption
             if added_to_group:
                 break
         
-        # If not added to any group, create new group
         if not added_to_group:
             groups.append([option])
     
-    # From each group, select the best representative
     deduplicated = []
     for group in groups:
         best = _select_best_from_group(group)
@@ -280,30 +290,24 @@ def _select_best_from_group(group: list[LocationOption]) -> LocationOption:
         "country": 20
     }
     
-    # Score each option
     scored = []
     for option in group:
         score = 0
         
-        # Type priority
         score += type_priority.get(option.location_type, 0)
         
-        # Confidence boost
         if option.confidence == "high":
             score += 50
         elif option.confidence == "medium":
             score += 25
         
-        # Prefer shorter names (more concise)
         score -= len(option.location_name) * 0.1
         
         scored.append((score, option))
     
-    # Sort by score (highest first)
     scored.sort(key=lambda x: x[0], reverse=True)
     best_option = scored[0][1]
     
-    # Boost confidence if multiple results agree on same location
     if len(group) >= 2:
         if best_option.confidence == "medium":
             # Create new option with boosted confidence
@@ -313,7 +317,7 @@ def _select_best_from_group(group: list[LocationOption]) -> LocationOption:
                 longitude=best_option.longitude,
                 location_name=best_option.location_name,
                 short_name=best_option.short_name,
-                confidence="high",  # ← BOOSTED
+                confidence="high", 
                 location_type=best_option.location_type
             )
             logger.info(
@@ -328,30 +332,45 @@ def _extract_short_name(geocode_result: dict) -> str:
     address = geocode_result.get("address", {})
     display = geocode_result.get("display_name", "")
     
-    # Try to build: City, State/Country format
     city = (
         address.get("city") or 
         address.get("town") or 
         address.get("village") or
         address.get("hamlet") or
-        display.split(",")[0]  # Fallback to first part
+        display.split(",")[0] or
+        address.get("neighbourhood") or 
+        address.get("suburb") or         
+        address.get("county") or 
+        None
     )
     
-    # For US locations
-    if address.get("country") == "United States":
+    if not city:
+        parts = [p.strip() for p in display.split(",")]
+        city = parts[0] if parts else "Unknown"
+    
+    if city and city.startswith("City of "):
+        city = city.replace("City of ", "")
+    
+    country = address.get("country", "")
+    if country in ["United States", "United States of America", "USA"]:
         state = address.get("state")
+        
         if state:
-            # Convert "New York" → "NY" if possible
             state_abbrev = _get_state_abbrev(state)
             return f"{city}, {state_abbrev}"
+        else:
+            return f"{city}, USA"
     
-    # For international locations
-    country = address.get("country", "")
-    if country:
+    if country and country != "United States":
         return f"{city}, {country}"
     
-    # Fallback: just return display name
-    return display
+    parts = [p.strip() for p in display.split(",")]
+    if len(parts) >= 2:
+        return f"{parts[0]}, {parts[1]}"
+    elif len(parts) == 1:
+        return parts[0]
+    else:
+        return display
 
 
 def _get_state_abbrev(state_name: str) -> str:
@@ -372,19 +391,27 @@ def _get_state_abbrev(state_name: str) -> str:
     }
     return states.get(state_name, state_name)
 def _determine_confidence(geocode_result: dict) -> str:
-
+    """
+    Determine how confident we are in the geocoding result.
+     High confidence: specific buildings, addresses, major cities"""
     result_type = geocode_result.get("type", "")
     osm_type = geocode_result.get("osm_type", "")
+    importance = geocode_result.get("importance", 0.0)  
     
-    # High confidence: specific buildings, addresses
+    if importance >= 0.7:
+        return "high"
+    
+    # High confidence: specific buildings, addresses, major cities
+    if result_type in ["city"] and importance >= 0.5:
+        return "high"
+    
     if result_type in ["building", "house", "residential"] or osm_type == "way":
         return "high"
     
     # Medium confidence: cities, neighborhoods
-    elif result_type in ["city", "town", "village", "neighbourhood"]:
+    if result_type in ["town", "village", "neighbourhood", "suburb"]:
         return "medium"
     
     # Low confidence: broad regions, ambiguous
-    else:
-        return "low"
+    return "low"
 
