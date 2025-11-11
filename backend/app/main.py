@@ -19,10 +19,10 @@ allowed_origins = settings.allowed_origins.split(",")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,  
+    allow_origins=["http://localhost:3000"],  # Or specify your frontend URLs
     allow_credentials=True,
-    allow_methods=["*"],  
-    allow_headers=["*"], 
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Register routes
