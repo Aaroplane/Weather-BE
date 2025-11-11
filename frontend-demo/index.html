@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Agent - Quick Demo</title>
+    
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* Custom animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .loading {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-2xl">
+        
+        <!-- Header -->
+        <header class="text-center mb-8 fade-in">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                🌤️ Weather Agent
+            </h1>
+            <p class="text-gray-600">
+                AI-powered weather monitoring and suggestions
+            </p>
+        </header>
+        
+        <!-- Search Box -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6 fade-in">
+            <div class="flex gap-2">
+                <input 
+                    id="searchInput" 
+                    type="text" 
+                    placeholder="Search location (e.g., Brooklyn, Paris, Tokyo...)"
+                    class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onkeypress="handleEnterKey(event)"
+                />
+                <button 
+                    onclick="getWeather()"
+                    class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-semibold"
+                >
+                    Search
+                </button>
+            </div>
+            
+            <div id="errorMessage" class="hidden mt-4 p-4 bg-red-100 text-red-700 rounded-lg">
+            </div>
+        </div>
+        <!-- Loading State -->
+        <div id="loadingState" class="hidden text-center py-12">
+            <div class="loading mx-auto mb-4"></div>
+            <p class="text-gray-600">Fetching weather data...</p>
+        </div>
+        
+        <!-- Weather Display -->
+        <div id="weatherDisplay" class="hidden bg-white rounded-lg shadow-lg p-6 fade-in">
+            
+            <!-- Location Header -->
+            <div class="border-b border-gray-200 pb-4 mb-4">
+                <h2 id="locationName" class="text-2xl font-bold text-gray-800">
+                </h2>
+                <p id="locationDetails" class="text-sm text-gray-500">
+                </p>
+            </div>
+            
+            <!-- Main Weather Info -->
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <div id="temperature" class="text-6xl font-bold text-gray-800">
+                    </div>
+                    <div id="conditions" class="text-xl text-gray-600">
+                    </div>
+                </div>
+                <div id="weatherIcon" class="text-7xl">
+                </div>
+            </div>
+            
+            <!-- Weather Details Grid -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="text-sm text-gray-500 mb-1">💨 Wind Speed</div>
+                    <div id="windSpeed" class="text-xl font-semibold text-gray-800"></div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="text-sm text-gray-500 mb-1">💧 Humidity</div>
+                    <div id="humidity" class="text-xl font-semibold text-gray-800"></div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="text-sm text-gray-500 mb-1">🌧️ Precipitation</div>
+                    <div id="precipitation" class="text-xl font-semibold text-gray-800"></div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="text-sm text-gray-500 mb-1">☀️ UV Index</div>
+                    <div id="uvIndex" class="text-xl font-semibold text-gray-800"></div>
+                </div>
+            </div>
+            
+            <div id="suggestionsContainer" class="border-t border-gray-200 pt-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                    💡 Weather Suggestions
+                </h3>
+                <div id="suggestionsList">
+                </div>
+            </div>
+            
+            <div class="mt-6 text-center">
+                <button 
+                    onclick="resetSearch()"
+                    class="text-blue-500 hover:text-blue-600 font-semibold"
+                >
+                    🔍 Search another location
+                </button>
+            </div>
+        </div>
+        
+    </div>
+    
+    <script>
+        // ========================================
+        // CONFIGURATION
+        // ========================================
+        const API_BASE_URL = 'http://localhost:8000';  // ← Your backend URL
+        
+        
+        // ========================================
+        // MAIN FUNCTIONS
+        // ========================================
+        
+        async function getWeather() {
+            const searchInput = document.getElementById('searchInput');
+            const location = searchInput.value.trim();
+            
+            // Validate input
+            if (!location) {
+                showError('Please enter a location');
+                return;
+            }
+            
+            // Hide previous results and errors
+            hideError();
+            hideWeather();
+            showLoading();
+            
+            try {
+                // Call your backend API
+                const response = await fetch(`${API_BASE_URL}/api/weather/current`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ location })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Failed to fetch weather');
+                }
+                
+                const data = await response.json();
+                displayWeather(data);
+                
+            } catch (error) {
+                console.error('Error fetching weather:', error);
+                showError(error.message || 'Failed to fetch weather data. Please try again.');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        
+        function displayWeather(data) {
+            // Location
+            document.getElementById('locationName').textContent = 
+                data.location.short_name || data.query;
+            document.getElementById('locationDetails').textContent = 
+                data.location.location_name;
+            
+            const tempC = data.current_weather.temperature;
+            const tempF = (tempC * 9/5) + 32;
+            document.getElementById('temperature').textContent = 
+                `${tempC.toFixed(1)}°C`;
+            
+            const icon = getWeatherIcon(
+                data.current_weather.temperature,
+                data.current_weather.precipitation
+            );
+            document.getElementById('weatherIcon').textContent = icon;
+            
+            document.getElementById('conditions').textContent = 
+                getWeatherCondition(data.current_weather);
+            
+            document.getElementById('windSpeed').textContent = 
+                `${data.current_weather.wind_speed} km/h`;
+            document.getElementById('humidity').textContent = 
+                `${data.current_weather.humidity}%`;
+            document.getElementById('precipitation').textContent = 
+                `${data.current_weather.precipitation} mm`;
+            document.getElementById('uvIndex').textContent = 
+                data.current_weather.uv_index;
+            
+            // Suggestions
+            displaySuggestions(data.suggestions);
+            
+            // Show weather display
+            showWeather();
+        }
+        
+        
+        function displaySuggestions(suggestions) {
+            const container = document.getElementById('suggestionsList');
+            container.innerHTML = '';
+            
+            suggestions.forEach(suggestion => {
+                const severityColors = {
+                    'low': 'bg-green-100 border-green-300 text-green-800',
+                    'moderate': 'bg-yellow-100 border-yellow-300 text-yellow-800',
+                    'high': 'bg-red-100 border-red-300 text-red-800'
+                };
+                
+                const colorClass = severityColors[suggestion.severity] || severityColors.low;
+                
+                const suggestionEl = document.createElement('div');
+                suggestionEl.className = `border-l-4 p-4 mb-3 rounded ${colorClass}`;
+                suggestionEl.innerHTML = `
+                    <div class="flex items-start gap-2">
+                        <span class="text-2xl">${suggestion.icon}</span>
+                        <div class="flex-1">
+                            <div class="font-semibold mb-1 capitalize">
+                                ${suggestion.severity} Priority
+                            </div>
+                            <div class="text-sm">
+                                ${suggestion.suggestion}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(suggestionEl);
+            });
+        }
+        
+        
+        // ========================================
+        // HELPER FUNCTIONS
+        // ========================================
+        
+        function getWeatherIcon(temperature, precipitation) {
+            if (precipitation > 0) return '🌧️';
+            if (temperature < 0) return '❄️';
+            if (temperature < 10) return '🌥️';
+            if (temperature < 20) return '⛅';
+            if (temperature < 30) return '☀️';
+            return '🔥';
+        }
+        
+        function getWeatherCondition(weather) {
+            if (weather.precipitation > 2) return 'Rainy';
+            if (weather.temperature < 0) return 'Freezing';
+            if (weather.temperature < 10) return 'Cold';
+            if (weather.temperature < 20) return 'Cool';
+            if (weather.temperature < 25) return 'Pleasant';
+            if (weather.temperature < 30) return 'Warm';
+            return 'Hot';
+        }
+        
+        function handleEnterKey(event) {
+            if (event.key === 'Enter') {
+                getWeather();
+            }
+        }
+        
+        function resetSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchInput').focus();
+            hideWeather();
+        }
+        
+        
+        // ========================================
+        // UI STATE MANAGEMENT
+        // ========================================
+        
+        function showLoading() {
+            document.getElementById('loadingState').classList.remove('hidden');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingState').classList.add('hidden');
+        }
+        
+        function showWeather() {
+            document.getElementById('weatherDisplay').classList.remove('hidden');
+        }
+        
+        function hideWeather() {
+            document.getElementById('weatherDisplay').classList.add('hidden');
+        }
+        
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.classList.remove('hidden');
+        }
+        
+        function hideError() {
+            document.getElementById('errorMessage').classList.add('hidden');
+        }
+        
+        
+        // ========================================
+        // INITIALIZATION
+        // ========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('searchInput').focus();
+            console.log('Weather Agent Demo loaded!');
+            console.log('Backend URL:', API_BASE_URL);
+        });
+    </script>
+</body>
+</html>
