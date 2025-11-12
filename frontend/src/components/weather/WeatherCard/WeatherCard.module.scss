@@ -1,0 +1,96 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.card {
+  @include card;
+  animation: fadeIn 0.5s ease-out;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.header {
+  border-bottom: 1px solid $color-gray-200;
+  padding-bottom: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.locationName {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $color-gray-800;
+  margin-bottom: $spacing-xs;
+}
+
+.locationDetails {
+  font-size: $font-size-sm;
+  color: $color-gray-500;
+  margin: 0;
+}
+
+.mainWeather {
+  @include flex-between;
+  margin-bottom: $spacing-xl;
+}
+
+.tempSection {
+  flex: 1;
+}
+
+.temperature {
+  font-size: $font-size-6xl;
+  font-weight: $font-weight-bold;
+  color: $color-gray-800;
+  line-height: 1;
+}
+
+.condition {
+  font-size: $font-size-xl;
+  color: $color-gray-600;
+  margin-top: $spacing-sm;
+}
+
+.icon {
+  font-size: $font-size-6xl;
+  line-height: 1;
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-md;
+}
+
+.detailItem {
+  background-color: $color-gray-50;
+  padding: $spacing-md;
+  border-radius: $radius-lg;
+}
+
+.detailLabel {
+  @include flex-center;
+  justify-content: flex-start;
+  gap: $spacing-xs;
+  font-size: $font-size-sm;
+  color: $color-gray-500;
+  margin-bottom: $spacing-xs;
+}
+
+.detailIcon {
+  font-size: $font-size-base;
+}
+
+.detailValue {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-gray-800;
+}
+
+@include respond-to('md') {
+  .temperature {
+    font-size: calc($font-size-6xl * 1.2);
+  }
+  
+  .detailsGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
