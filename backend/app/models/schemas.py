@@ -22,8 +22,6 @@ class Coordinates(BaseModel):
         description="Geocoding confidence: high | medium | low"
     )
 
-# Add after the Coordinates class
-
 class LocationOption(BaseModel):
     """A potential location match for disambiguation."""
     latitude: float = Field(..., ge=-90, le=90)

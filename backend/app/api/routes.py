@@ -79,16 +79,7 @@ async def get_current_weather(location_input: LocationInput):
     
 @router.post("/location/disambiguate", response_model=LocationDisambiguationResponse)
 async def disambiguate_location(location_input: LocationInput):
-    """
-    Search for locations and return multiple matches for disambiguation.
-    
-    Uses smart confidence filtering:
-        - If high-confidence match exists → returns ONLY that (no disambiguation)
-        - If multiple medium-confidence → returns all (disambiguation needed)
-        - Filters out low-confidence noise
-    
-    ...
-    """
+
     from app.models.schemas import LocationDisambiguationResponse
     
     try:
