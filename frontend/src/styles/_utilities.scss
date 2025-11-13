@@ -1,4 +1,7 @@
 // UTILITY CLASSES
+@use 'variables' as *;
+@use 'mixins' as *;
+
 
 .mt-auto { margin-top: auto; }
 .mb-auto { margin-bottom: auto; }

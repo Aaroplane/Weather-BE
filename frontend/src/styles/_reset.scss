@@ -1,5 +1,8 @@
 // CSS RESET & BASE STYLES
-
+@use 'variables' as *;
+@use 'mixins' as *;
+@use 'animations' as *;
+@use 'utilities' as *;
 *,
 *::before,
 *::after {

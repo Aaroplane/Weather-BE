@@ -1,9 +1,6 @@
+@use './core' as *;
 @import 'modern-normalize/modern-normalize.css';
-@import './variables';
-@import './mixins';
-@import './reset';
-@import './animations';
-@import './utilities';
+
 
 body {
   min-height: 100vh;
