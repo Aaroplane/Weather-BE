@@ -1,0 +1,86 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.button {
+  @include button-base;
+  gap: $spacing-sm;
+  
+  &:focus-visible {
+    @include focus-ring;
+  }
+  
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+}
+
+.primary {
+  background-color: $color-primary;
+  color: $color-white;
+  
+  &:hover:not(:disabled) {
+    background-color: $color-primary-dark;
+  }
+}
+
+.secondary {
+  background-color: $color-gray-200;
+  color: $color-gray-800;
+  
+  &:hover:not(:disabled) {
+    background-color: $color-gray-300;
+  }
+}
+
+.outline {
+  background-color: transparent;
+  border: 2px solid $color-primary;
+  color: $color-primary;
+  
+  &:hover:not(:disabled) {
+    background-color: rgba($color-primary, 0.1);
+  }
+}
+
+.ghost {
+  background-color: transparent;
+  color: $color-primary;
+  
+  &:hover:not(:disabled) {
+    background-color: rgba($color-primary, 0.1);
+  }
+}
+
+.sm {
+  padding: $spacing-xs $spacing-md;
+  font-size: $font-size-sm;
+}
+
+.md {
+  padding: $spacing-sm $spacing-lg;
+  font-size: $font-size-base;
+}
+
+.lg {
+  padding: $spacing-md $spacing-xl;
+  font-size: $font-size-lg;
+}
+
+.loading {
+  position: relative;
+  color: transparent;
+  pointer-events: none;
+}
+
+.spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: $color-white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}

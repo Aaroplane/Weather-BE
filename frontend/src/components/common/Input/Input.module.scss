@@ -1,0 +1,91 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.wrapper {
+  width: 100%;
+}
+
+.label {
+  display: block;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-gray-700;
+  margin-bottom: $spacing-xs;
+}
+
+.inputContainer {
+  position: relative;
+  width: 100%;
+}
+
+.input {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  font-size: $font-size-base;
+  color: $color-gray-900;
+  background-color: $color-white;
+  border: 1px solid $color-gray-300;
+  border-radius: $radius-md;
+  transition: all $transition-base;
+  
+  &::placeholder {
+    color: $color-gray-400;
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: $color-primary;
+    box-shadow: 0 0 0 3px rgba($color-primary, 0.1);
+  }
+  
+  &:disabled {
+    background-color: $color-gray-100;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  
+  &.error {
+    border-color: $color-danger;
+    
+    &:focus {
+      border-color: $color-danger;
+      box-shadow: 0 0 0 3px rgba($color-danger, 0.1);
+    }
+  }
+  
+  &.hasLeftIcon {
+    padding-left: calc($spacing-xl + $spacing-sm);
+  }
+  
+  &.hasRightIcon {
+    padding-right: calc($spacing-xl + $spacing-sm);
+  }
+}
+
+.leftIcon,
+.rightIcon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $color-gray-400;
+  pointer-events: none;
+  font-size: $font-size-lg;
+}
+
+.leftIcon {
+  left: $spacing-md;
+}
+
+.rightIcon {
+  right: $spacing-md;
+}
+
+.helperText {
+  margin-top: $spacing-xs;
+  font-size: $font-size-xs;
+  color: $color-gray-500;
+}
+
+.errorText {
+  color: $color-danger;
+}

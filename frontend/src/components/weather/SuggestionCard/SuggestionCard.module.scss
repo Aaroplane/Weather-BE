@@ -1,0 +1,73 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.card {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  border-left: 4px solid;
+  border-radius: $radius-md;
+  transition: transform $transition-base, box-shadow $transition-base;
+  
+  &:hover {
+    transform: translateX(4px);
+  }
+}
+
+.icon {
+  font-size: $font-size-3xl;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.severity {
+  display: inline-block;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: $spacing-xs;
+}
+
+.text {
+  font-size: $font-size-base;
+  margin: 0;
+  line-height: 1.5;
+}
+
+// Severity variants
+.low {
+  background-color: rgba($color-success, 0.1);
+  border-left-color: $color-success;
+  
+  .severity,
+  .text {
+    color: darken($color-success, 20%);
+  }
+}
+
+.moderate {
+  background-color: rgba($color-warning, 0.1);
+  border-left-color: $color-warning;
+  
+  .severity,
+  .text {
+    color: darken($color-warning, 20%);
+  }
+}
+
+.high {
+  background-color: rgba($color-danger, 0.1);
+  border-left-color: $color-danger;
+  
+  .severity,
+  .text {
+    color: darken($color-danger, 10%);
+  }
+}
