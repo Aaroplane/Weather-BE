@@ -1,0 +1,153 @@
+@use '../../styles/mixins' as *;
+@use '../../styles/variables' as *;
+
+.home {
+  min-height: 100vh;
+  padding: $spacing-md;
+  
+  @include respond-to('md') {
+    padding: $spacing-xl;
+  }
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+// Header
+.header {
+  text-align: center;
+  margin-bottom: $spacing-2xl;
+  animation: fadeIn 0.6s ease-out;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-md;
+  font-size: $font-size-4xl;
+  font-weight: $font-weight-bold;
+  color: $color-white;
+  margin-bottom: $spacing-sm;
+  
+  @include respond-to('md') {
+    font-size: $font-size-5xl;
+  }
+}
+
+.icon {
+  font-size: $font-size-5xl;
+  
+  @include respond-to('md') {
+    font-size: $font-size-6xl;
+  }
+}
+
+.subtitle {
+  font-size: $font-size-lg;
+  color: rgba($color-white, 0.9);
+  margin: 0;
+}
+
+// Loading State
+.loading {
+  @include flex-column;
+  @include flex-center;
+  padding: $spacing-3xl;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.loadingText {
+  margin-top: $spacing-lg;
+  color: $color-white;
+  font-size: $font-size-lg;
+}
+
+// Error State
+.error {
+  @include card;
+  @include flex-center;
+  flex-direction: column;
+  padding: $spacing-2xl;
+  background-color: rgba($color-danger, 0.1);
+  border: 2px solid $color-danger;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.errorIcon {
+  font-size: $font-size-5xl;
+  margin-bottom: $spacing-md;
+}
+
+.errorContent {
+  text-align: center;
+}
+
+.errorTitle {
+  font-size: $font-size-xl;
+  color: $color-danger;
+  margin-bottom: $spacing-sm;
+}
+
+.errorMessage {
+  color: darken($color-danger, 10%);
+  margin-bottom: $spacing-lg;
+}
+
+// Weather Section
+.weatherSection {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.suggestions {
+  margin-top: $spacing-xl;
+}
+
+.suggestionsTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-white;
+  text-align: center;
+  margin-bottom: $spacing-lg;
+}
+
+.suggestionsList {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.actions {
+  margin-top: $spacing-xl;
+  text-align: center;
+}
+
+// Empty State
+.emptyState {
+  @include flex-column;
+  @include flex-center;
+  padding: $spacing-3xl;
+  text-align: center;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.emptyIcon {
+  font-size: $font-size-6xl;
+  margin-bottom: $spacing-lg;
+}
+
+.emptyTitle {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $color-white;
+  margin-bottom: $spacing-sm;
+}
+
+.emptyText {
+  font-size: $font-size-lg;
+  color: rgba($color-white, 0.8);
+  max-width: 400px;
+}
