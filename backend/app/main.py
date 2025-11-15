@@ -19,7 +19,7 @@ allowed_origins = settings.allowed_origins.split(",")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"], # Frontend origin temporarily hardcoded
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

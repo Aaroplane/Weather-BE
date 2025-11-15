@@ -1,5 +1,6 @@
 @use '../../../styles/mixins' as *;
 @use '../../../styles/variables' as *;
+@use 'sass:color';  
 
 .card {
   display: flex;
@@ -48,7 +49,7 @@
   
   .severity,
   .text {
-    color: darken($color-success, 20%);
+    color: color.adjust($color-success, $lightness: -20%);
   }
 }
 
@@ -58,7 +59,7 @@
   
   .severity,
   .text {
-    color: darken($color-warning, 20%);
+    color: color.adjust($color-warning, $lightness: -20%); 
   }
 }
 
@@ -68,6 +69,6 @@
   
   .severity,
   .text {
-    color: darken($color-danger, 10%);
+    color: color.adjust($color-danger, $lightness: -10%); 
   }
 }

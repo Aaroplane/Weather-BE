@@ -1,5 +1,7 @@
 @use '../../styles/mixins' as *;
 @use '../../styles/variables' as *;
+@use 'sass:color'; 
+
 
 .home {
   min-height: 100vh;
@@ -76,6 +78,11 @@
   animation: fadeIn 0.3s ease-out;
 }
 
+.errorMessage {
+  color: color.adjust($color-danger, $lightness: -10%); 
+  margin-bottom: $spacing-lg;
+}
+
 .errorIcon {
   font-size: $font-size-5xl;
   margin-bottom: $spacing-md;
@@ -92,7 +99,7 @@
 }
 
 .errorMessage {
-  color: darken($color-danger, 10%);
+  color: color.adjust($color-danger, $lightness: -10%);
   margin-bottom: $spacing-lg;
 }
 
