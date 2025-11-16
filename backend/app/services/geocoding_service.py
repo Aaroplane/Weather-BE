@@ -35,7 +35,8 @@ async def geocode(location: Optional[str]) -> Coordinates:
                     "q": location,           
                     "format": "json",        
                     "limit": 1,             
-                    "addressdetails": 1      
+                    "addressdetails": 1,
+                    "accept-language": "en"      
                 },
                 headers={
                     "User-Agent": "WeatherAgentApp/1.0"  
