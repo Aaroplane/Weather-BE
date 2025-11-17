@@ -75,3 +75,54 @@ class WeatherResponse(BaseModel):
     current_weather: CurrentWeather
     suggestions: list[WeatherSuggestion]
     timestamp: datetime
+
+#RAG USER Prererence and Logging Models
+
+class UserPreference(BaseModel):
+    """User preference storage for RAG preparation."""
+    user_id: str = Field(..., description="User identifier (session ID for now)")
+    preference_type: str = Field(..., description="temp_unit, language, theme, etc.")
+    value: str = Field(..., description="Preference value")
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    context: Optional[str] = Field(None, description="Context when preference was set")
+
+
+class LocationLog(BaseModel):
+    """Location access logging for pattern detection (Phase 3: RAG)."""
+    user_id: str
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    latitude: float
+    longitude: float
+    location_name: str
+    location_type: Optional[str] = Field(None, description="home, work, other (Phase 3)")
+    
+    # Context
+    time_of_day: str = Field(..., description="morning, afternoon, evening, night")
+    day_of_week: str
+    is_weekend: bool
+    hour: int
+    
+    # Action tracking
+    action: str = Field(..., description="weather_check, location_search")
+    method: str = Field(..., description="auto_location, manual_search")
+    
+    # Weather snapshot (for correlation)
+    weather_snapshot: Optional[dict] = None
+
+
+class FashionFeedback(BaseModel):
+    """Fashion tip feedback for personalization (Phase 3: ML training)."""
+    user_id: str
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    weather_conditions: dict
+    tips_shown: list
+    feedback: str = Field(..., description="helpful, not_helpful, ignored")
+    outfit_selected: Optional[str] = None
+    notes: Optional[str] = None
+
+
+class CoordsWeatherRequest(BaseModel):
+    """Weather request by coordinates (for 'Use My Location' feature)."""
+    latitude: float = Field(..., ge=-90, le=90)
+    longitude: float = Field(..., ge=-180, le=180)
+    user_id: Optional[str] = None
