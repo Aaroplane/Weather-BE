@@ -1,16 +1,21 @@
 from fastapi import APIRouter, HTTPException, status
-from app.models.schemas import LocationInput, WeatherResponse, LocationDisambiguationResponse
+from app.models.schemas import (
+    LocationInput, 
+    WeatherResponse, 
+    LocationDisambiguationResponse,
+    Coordinates,
+    UserPreference, 
+    LocationLog, 
+    FashionFeedback,
+    CoordsWeatherRequest,
+    FashionRequest
+)
 from app.services import geocoding_service, weather_service
 from app.services.geocoding_service import GeocodingError
 from app.services.weather_service import WeatherAPIError
 from app.services.logging_service import logging_service
 from app.services.fashion_service import fashion_service
-from app.models.schemas import (
-    UserPreference, 
-    LocationLog, 
-    FashionFeedback,
-    CoordsWeatherRequest
-)
+from datetime import datetime
 from typing import Dict, Any
 import logging
 
@@ -226,19 +231,12 @@ async def get_weather_by_coords(request: CoordsWeatherRequest):
 
 
 @router.post("/fashion/recommendations")
-async def get_fashion_recommendations(weather_data: Dict[str, Any]):
-    """
-    Get outfit recommendations based on weather.
-    
-    Request body example:
-    {
-        "temperature": 18.5,
-        "precipitation": 0.0,
-        "wind_speed": 11.2,
-        "uv_index": 3
-    }
-    """
+async def get_fashion_recommendations(request: FashionRequest):
+    """Get fashion recommendations based on current weather."""
     try:
+        # Convert Pydantic model to dict
+        weather_data = request.dict()
+        
         recommendations = fashion_service.get_recommendations(weather_data)
         
         return {
@@ -246,7 +244,7 @@ async def get_fashion_recommendations(weather_data: Dict[str, Any]):
             "recommendations": recommendations
         }
     except Exception as e:
-        logger.error(f"Fashion recommendations error: {e}")
+        logger.error(f"Fashion recommendations error: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to generate recommendations"

@@ -71,7 +71,7 @@ async def geocode(location: Optional[str]) -> Coordinates:
 async def reverse_geocode(
     latitude: float,
     longitude: float,
-    session: aiohttp.ClientSession
+    session: httpx.AsyncClient  
 ) -> Optional[str]:
     url = "https://nominatim.openstreetmap.org/reverse"
     
@@ -87,32 +87,33 @@ async def reverse_geocode(
     }
     
     try:
-        async with session.get(url, params=params, headers=headers) as response:
-            if response.status != 200:
-                logger.error(f"Reverse geocoding failed: {response.status}")
-                return None
-            
-            data = await response.json()
-            
-            # Extract location name from address
-            address = data.get("address", {})
-            
-            # Build location string (city, state, country)
-            parts = []
-            if "city" in address:
-                parts.append(address["city"])
-            elif "town" in address:
-                parts.append(address["town"])
-            elif "village" in address:
-                parts.append(address["village"])
-            
-            if "state" in address:
-                parts.append(address["state"])
-            
-            if "country" in address:
-                parts.append(address["country"])
-            
-            return ", ".join(parts) if parts else data.get("display_name", "Unknown Location")
+        response = await session.get(url, params=params, headers=headers)
+        
+        if response.status_code != 200:
+            logger.error(f"Reverse geocoding failed: {response.status_code}")
+            return None
+        
+        data = response.json()
+        
+        # Extract location name from address
+        address = data.get("address", {})
+        
+        # Build location string (city, state, country)
+        parts = []
+        if "city" in address:
+            parts.append(address["city"])
+        elif "town" in address:
+            parts.append(address["town"])
+        elif "village" in address:
+            parts.append(address["village"])
+        
+        if "state" in address:
+            parts.append(address["state"])
+        
+        if "country" in address:
+            parts.append(address["country"])
+        
+        return ", ".join(parts) if parts else data.get("display_name", "Unknown Location")
             
     except Exception as e:
         logger.error(f"Reverse geocoding error: {e}")

@@ -7,10 +7,8 @@ from app.models.schemas import UserPreference, LocationLog, FashionFeedback
 
 logger = logging.getLogger(__name__)
 
-# Storage directory (Phase 1.5: local files, Phase 3: vector DB)
 DATA_DIR = Path("data/logs")
 DATA_DIR.mkdir(parents=True, exist_ok=True)
-
 
 class LoggingService:
     """Service for logging user interactions for future RAG/ML."""

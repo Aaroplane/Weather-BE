@@ -126,3 +126,20 @@ class CoordsWeatherRequest(BaseModel):
     latitude: float = Field(..., ge=-90, le=90)
     longitude: float = Field(..., ge=-180, le=180)
     user_id: Optional[str] = None
+
+class FashionRequest(BaseModel):
+    """Request for fashion recommendations."""
+    temperature: float = Field(..., description="Temperature in Celsius")
+    precipitation: float = Field(0, description="Precipitation in mm")
+    wind_speed: float = Field(0, description="Wind speed in km/h")
+    uv_index: float = Field(0, description="UV index (0-11+)")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "temperature": 18.5,
+                "precipitation": 0.0,
+                "wind_speed": 11.2,
+                "uv_index": 3
+            }
+        }
