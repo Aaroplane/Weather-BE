@@ -1,0 +1,52 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.toggleContainer {
+  display: inline-flex;
+  align-items: center;
+}
+
+.toggleButton {
+  @include flex-center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-lg;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: $radius-full;
+  color: $color-white;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all $transition-base;
+  backdrop-filter: blur(10px);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.active {
+  color: $color-white;
+  font-weight: $font-weight-semibold;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.inactive {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: $font-weight-normal;
+}
+
+.divider {
+  color: rgba(255, 255, 255, 0.3);
+  font-weight: $font-weight-light;
+}
