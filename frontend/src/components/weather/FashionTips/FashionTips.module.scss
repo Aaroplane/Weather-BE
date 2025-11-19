@@ -1,0 +1,154 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.fashionTips {
+  @include glass;
+  border-radius: $radius-xl;
+  padding: $spacing-lg;
+  margin-top: $spacing-lg;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.header {
+  @include flex-between;
+  cursor: pointer;
+  user-select: none;
+
+  h3 {
+    margin: 0;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-semibold;
+    color: $color-white;
+  }
+}
+
+.expandButton {
+  background: none;
+  border: none;
+  color: $color-white;
+  font-size: $font-size-base;
+  cursor: pointer;
+  padding: $spacing-sm;
+  transition: transform $transition-base;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.summary {
+  margin-top: $spacing-md;
+  font-size: $font-size-base;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+}
+
+.details {
+  margin-top: $spacing-lg;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.section {
+  margin-bottom: $spacing-lg;
+
+  h4 {
+    margin: 0 0 $spacing-sm 0;
+    font-size: $font-size-base;
+    font-weight: $font-weight-medium;
+    color: $color-white;
+  }
+}
+
+.layer {
+  margin-bottom: $spacing-sm;
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+
+  strong {
+    color: $color-white;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    padding: $spacing-sm 0;
+    font-size: $font-size-sm;
+    color: rgba(255, 255, 255, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:before {
+      content: '•';
+      margin-right: $spacing-sm;
+      color: $color-primary-light;
+    }
+  }
+}
+
+.feedback {
+  margin-top: $spacing-lg;
+  padding-top: $spacing-lg;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+  p {
+    margin: 0 0 $spacing-md 0;
+    font-size: $font-size-sm;
+    color: rgba(255, 255, 255, 0.8);
+  }
+}
+
+.feedbackButtons {
+  display: flex;
+  gap: $spacing-md;
+
+  .helpfulButton,
+  .notHelpfulButton {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: $color-white !important;
+  }
+
+  .helpfulButton:hover:not(:disabled) {
+    background: rgba($color-success, 0.2) !important;
+    border-color: rgba($color-success, 0.5) !important;
+    transform: translateY(-2px);
+  }
+
+  .notHelpfulButton:hover:not(:disabled) {
+    background: rgba($color-danger, 0.2) !important;
+    border-color: rgba($color-danger, 0.5) !important;
+    transform: translateY(-2px);
+  }
+}
+
+.thankYou {
+  margin-top: $spacing-lg;
+  padding: $spacing-md;
+  background: rgba($color-success, 0.1);
+  border: 1px solid rgba($color-success, 0.3);
+  border-radius: $radius-md;
+  color: $color-white;
+  text-align: center;
+  font-size: $font-size-sm;
+}
+
+.loading {
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  padding: $spacing-md;
+  font-size: $font-size-sm;
+}

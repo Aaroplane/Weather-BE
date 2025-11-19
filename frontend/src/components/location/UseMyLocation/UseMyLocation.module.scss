@@ -1,0 +1,39 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.locationButton {
+  backdrop-filter: blur(10px);
+  min-width: 180px;
+  
+  // Add custom styles for this specific button
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: $color-white !important;
+  
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+  }
+}
+
+.icon {
+  font-size: $font-size-lg;
+  margin-right: $spacing-xs;
+}
+
+.error {
+  padding: $spacing-sm $spacing-md;
+  background: rgba($color-danger, 0.1);
+  border: 1px solid rgba($color-danger, 0.3);
+  border-radius: $radius-md;
+  color: $color-white;
+  font-size: $font-size-xs;
+  text-align: center;
+  line-height: 1.4;
+}

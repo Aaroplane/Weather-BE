@@ -41,6 +41,6 @@ export const saveUserPreference = (key, value) => {
 export const removePreference = (key) => {
   const prefs = getUserPreferences();
   delete prefs[key];
-  localStorage.setItem(PREFERENCES_KEY, JSON.stringify(prefs));
+localStorage.setItem('weather_agent_preferences', JSON.stringify(prefs));  // ✅
   console.log(`🗑️ Removed preference: ${key}`);
 };

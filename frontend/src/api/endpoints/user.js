@@ -25,9 +25,6 @@ const getUserId = () => {
 export const userAPI = {
   /**
    * Get weather by GPS coordinates (for "Use My Location")
-   * @param {number} latitude
-   * @param {number} longitude
-   * @returns {Promise}
    */
   getWeatherByCoords: async (latitude, longitude) => {
     const { data } = await apiClient.post('/api/weather/by-coords', {
@@ -40,8 +37,6 @@ export const userAPI = {
 
   /**
    * Get fashion recommendations based on weather
-   * @param {Object} weatherData - {temperature, precipitation, wind_speed, uv_index}
-   * @returns {Promise}
    */
   getFashionRecommendations: async (weatherData) => {
     const { data } = await apiClient.post('/api/fashion/recommendations', {
@@ -54,11 +49,7 @@ export const userAPI = {
   },
 
   /**
-   * Submit fashion feedback
-   * @param {Object} weatherConditions
-   * @param {Array} tipsShown
-   * @param {string} feedback - 'helpful' | 'not_helpful' | 'ignored'
-   * @returns {Promise}
+   * Submit fashion feedback to backend
    */
   submitFashionFeedback: async (weatherConditions, tipsShown, feedback) => {
     const { data } = await apiClient.post('/api/feedback/fashion', {
@@ -72,9 +63,6 @@ export const userAPI = {
 
   /**
    * Save user preference to backend
-   * @param {string} preferenceType - 'temp_unit' | 'theme' | etc.
-   * @param {string} value
-   * @returns {Promise}
    */
   savePreference: async (preferenceType, value) => {
     const { data } = await apiClient.post('/api/preferences', {
@@ -94,7 +82,6 @@ export const userAPI = {
 
   /**
    * Get user preferences from backend
-   * @returns {Promise}
    */
   getPreferences: async () => {
     try {
