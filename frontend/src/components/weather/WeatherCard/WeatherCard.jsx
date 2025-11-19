@@ -1,8 +1,8 @@
-import { formatTemperature, formatWindSpeed } from '../../../utils/formatters';
+import { formatWindSpeed } from '../../../utils/formatters';
 import { getWeatherIcon, getConditionText } from '../../../utils/weather-icons';
 import styles from './WeatherCard.module.scss';
 
-export const WeatherCard = ({ weather }) => {
+export const WeatherCard = ({ weather, tempUnit = 'C', convertTemp }) => {
   const { current_weather, location } = weather;
   
   const icon = getWeatherIcon(
@@ -14,6 +14,19 @@ export const WeatherCard = ({ weather }) => {
     current_weather.temperature,
     current_weather.precipitation
   );
+
+  // Format temperature with unit
+  const formatTemperature = (celsius) => {
+    if (convertTemp) {
+      // Use parent's convert function if provided
+      return `${convertTemp(celsius)}°${tempUnit}`;
+    }
+    // Fallback: manual conversion
+    if (tempUnit === 'F') {
+      return `${(celsius * 9/5 + 32).toFixed(1)}°F`;
+    }
+    return `${celsius.toFixed(1)}°C`;
+  };
 
   return (
     <div className={styles.card}>

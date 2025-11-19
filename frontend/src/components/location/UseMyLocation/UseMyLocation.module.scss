@@ -7,11 +7,18 @@
   gap: $spacing-sm;
 }
 
-.locationButton {
+.buttonGroup {
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.locationButton,
+.mockButton {
   backdrop-filter: blur(10px);
-  min-width: 180px;
+  flex: 1;
+  min-width: 160px;
   
-  // Add custom styles for this specific button
   background: rgba(255, 255, 255, 0.1) !important;
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
   color: $color-white !important;
@@ -19,6 +26,15 @@
   &:hover:not(:disabled) {
     background: rgba(255, 255, 255, 0.15) !important;
     border-color: rgba(255, 255, 255, 0.3) !important;
+  }
+}
+
+.mockButton {
+  background: rgba(59, 130, 246, 0.1) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  
+  &:hover:not(:disabled) {
+    background: rgba(59, 130, 246, 0.2) !important;
   }
 }
 

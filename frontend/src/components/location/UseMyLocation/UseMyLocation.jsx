@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { userAPI } from '../../../api/endpoints/user';
 import { Button } from '../../common/Button/Button';
 import styles from './UseMyLocation.module.scss';
@@ -62,19 +62,56 @@ const UseMyLocation = ({ onLocationDetected, disabled = false }) => {
     );
   };
 
+  const handleMockLocation = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Mock coordinates for New York City
+      const mockLatitude = 40.7128;
+      const mockLongitude = -74.0060;
+      
+      console.log('🧪 Using mock location:', { mockLatitude, mockLongitude });
+      
+      const weatherData = await userAPI.getWeatherByCoords(mockLatitude, mockLongitude);
+      console.log('✅ Weather fetched for mock location:', weatherData);
+      
+      onLocationDetected(weatherData);
+      setLoading(false);
+    } catch (err) {
+      console.error('❌ Failed to fetch weather:', err);
+      setError('Failed to fetch weather for mock location');
+      setLoading(false);
+    }
+  };
+
   return (
     <div className={styles.container}>
-      <Button
-        variant="secondary"  // Use your button variants
-        size="md"
-        loading={loading}
-        disabled={disabled}
-        onClick={handleGetLocation}
-        className={styles.locationButton}
-      >
-        {!loading && <span className={styles.icon}>📍</span>}
-        <span>Use My Location</span>
-      </Button>
+      <div className={styles.buttonGroup}>
+        <Button
+          variant="secondary"
+          size="md"
+          loading={loading}
+          disabled={disabled}
+          onClick={handleGetLocation}
+          className={styles.locationButton}
+        >
+          {!loading && <span className={styles.icon}>📍</span>}
+          <span>Use My Location</span>
+        </Button>
+        
+        <Button
+          variant="secondary"
+          size="md"
+          loading={loading}
+          disabled={disabled}
+          onClick={handleMockLocation}
+          className={styles.mockButton}
+        >
+          {!loading && <span className={styles.icon}>🧪</span>}
+          <span>Mock NYC</span>
+        </Button>
+      </div>
       
       {error && (
         <div className={styles.error}>

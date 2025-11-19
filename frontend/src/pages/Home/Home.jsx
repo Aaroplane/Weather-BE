@@ -1,23 +1,55 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SearchBar } from '../../components/location/SearchBar/SearchBar.jsx';
 import { WeatherCard } from '../../components/weather/WeatherCard/WeatherCard.jsx';
 import { SuggestionCard } from '../../components/weather/SuggestionCard/SuggestionCard.jsx';
 import { Spinner } from '../../components/common/Spinner/Spinner.jsx';
 import { Button } from '../../components/common/Button/Button.jsx';
+import TemperatureToggle from '../../components/TemperatureToggle/TemperatureToggle.jsx';
+import UseMyLocation from '../../components/location/UseMyLocation/UseMyLocation.jsx';
+import FashionTips from '../../components/weather/FashionTips/FashionTips.jsx';
 import { useWeather } from '../../hooks/useWeather.js';
+import { userAPI } from '../../api/endpoints/user.js';
+import { getUserPreferences, saveUserPreference } from '../../utils/userSessions.js';
 import styles from './Home.module.scss';
 
 export const Home = () => {
   const { weather, loading, error, fetchWeather, reset } = useWeather();
   const [hasSearched, setHasSearched] = useState(false);
+  const [tempUnit, setTempUnit] = useState('C');
+
+  useEffect(() => {
+    const savedUnit = getUserPreferences('temp_unit', 'C');
+    setTempUnit(savedUnit);
+  }, []);
 
   const handleSearch = async (location) => {
     setHasSearched(true);
     try {
       await fetchWeather(location);
     } catch (err) {
-      // Error is already handled in useWeather hook
       console.error('Search failed:', err);
+    }
+  };
+
+  const handleLocationDetected = async (weatherData) => {
+    setHasSearched(true);
+    // useWeather hook might not have a direct setter, 
+    // so we'll fetch using the location name
+    if (weatherData?.location?.location_name) {
+      await fetchWeather(weatherData.location.location_name);
+    }
+  };
+
+  const handleTempToggle = async (newUnit) => {
+    setTempUnit(newUnit);
+    saveUserPreference('temp_unit', newUnit);
+    
+    // Also save to backend
+    try {
+      await userAPI.savePreference('temp_unit', newUnit);
+      console.log('✅ Temperature preference saved to backend');
+    } catch (err) {
+      console.error('❌ Failed to save temp preference to backend:', err);
     }
   };
 
@@ -26,22 +58,46 @@ export const Home = () => {
     setHasSearched(false);
   };
 
+  // Convert temperature based on unit
+  const convertTemp = (celsius) => {
+    if (tempUnit === 'F') {
+      return (celsius * 9/5 + 32).toFixed(1);
+    }
+    return celsius.toFixed(1);
+  };
+
   return (
     <div className={styles.home}>
       <div className={styles.container}>
-        {/* Header */}
+        {/* Header with Temperature Toggle */}
         <header className={styles.header}>
-          <h1 className={styles.title}>
-            <span className={styles.icon}>🌤️</span>
-            Weather Agent
-          </h1>
-          <p className={styles.subtitle}>
-            AI-powered weather monitoring and suggestions
-          </p>
+          <div className={styles.headerContent}>
+            <div className={styles.titleSection}>
+              <h1 className={styles.title}>
+                <span className={styles.icon}>🌤️</span>
+                Weather Agent
+              </h1>
+              <p className={styles.subtitle}>
+                AI-powered weather monitoring and suggestions
+              </p>
+            </div>
+            <div className={styles.headerControls}>
+              <TemperatureToggle 
+                unit={tempUnit} 
+                onToggle={handleTempToggle}
+              />
+            </div>
+          </div>
         </header>
 
-        {/* Search Bar */}
-        <SearchBar onSearch={handleSearch} loading={loading} />
+        {/* Search Bar + Use My Location */}
+        <div className={styles.searchSection}>
+          <SearchBar onSearch={handleSearch} loading={loading} />
+          <UseMyLocation 
+            onLocationDetected={handleLocationDetected}
+            disabled={loading}
+          />
+        </div>
 
         {/* Loading State */}
         {loading && (
@@ -68,7 +124,21 @@ export const Home = () => {
         {/* Weather Display */}
         {weather && !loading && !error && (
           <div className={styles.weatherSection}>
-            <WeatherCard weather={weather} />
+            <WeatherCard 
+              weather={weather}
+              tempUnit={tempUnit}
+              convertTemp={convertTemp}
+            />
+
+            {/* Fashion Tips - NEW */}
+            <FashionTips 
+              weatherData={{
+                temperature: weather.current_weather.temperature,
+                precipitation: weather.current_weather.precipitation,
+                wind_speed: weather.current_weather.wind_speed,
+                uv_index: weather.current_weather.uv_index
+              }}
+            />
 
             {/* Suggestions */}
             {weather.suggestions && weather.suggestions.length > 0 && (
