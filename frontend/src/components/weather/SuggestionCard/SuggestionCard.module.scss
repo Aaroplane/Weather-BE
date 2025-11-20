@@ -1,18 +1,36 @@
 @use '../../../styles/mixins' as *;
 @use '../../../styles/variables' as *;
-@use 'sass:color';  
+@use 'sass:color';
 
 .card {
   display: flex;
   align-items: flex-start;
   gap: $spacing-md;
-  padding: $spacing-md;
+  padding: $spacing-lg;
   border-left: 4px solid;
-  border-radius: $radius-md;
-  transition: transform $transition-base, box-shadow $transition-base;
+  border-radius: $radius-lg;
+  transition: all $transition-base;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  box-shadow: $shadow-sm;
+  
+  // Subtle gradient overlay
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
   
   &:hover {
-    transform: translateX(4px);
+    transform: translateX(6px) translateY(-2px);
+    box-shadow: $shadow-md;
   }
 }
 
@@ -20,55 +38,121 @@
   font-size: $font-size-3xl;
   line-height: 1;
   flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  transition: transform $transition-base;
+  
+  .card:hover & {
+    transform: scale(1.1);
+  }
 }
 
 .content {
   flex: 1;
   min-width: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .severity {
   display: inline-block;
   font-size: $font-size-xs;
-  font-weight: $font-weight-semibold;
+  font-weight: $font-weight-bold;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: $spacing-xs;
+  letter-spacing: 0.08em;
+  margin-bottom: $spacing-sm;
+  padding: $spacing-1 $spacing-xs;
+  border-radius: $radius-sm;
+  line-height: 1.2;
 }
 
 .text {
   font-size: $font-size-base;
   margin: 0;
-  line-height: 1.5;
+  line-height: $line-height-relaxed;
+  font-weight: $font-weight-medium;
 }
 
-// Severity variants
+// ============================================
+// SEVERITY VARIANTS - Professional Styling
+// ============================================
+
 .low {
-  background-color: rgba($color-success, 0.1);
+  background: rgba($color-success, 0.12);
   border-left-color: $color-success;
+  border: 1px solid rgba($color-success, 0.2);
+  border-left-width: 4px;
   
-  .severity,
+  .severity {
+    color: $color-success;
+    background: rgba($color-success, 0.15);
+    border: 1px solid rgba($color-success, 0.3);
+  }
+  
   .text {
-    color: color.adjust($color-success, $lightness: -20%);
+    color: color.adjust($color-success, $lightness: -25%); // Updated
+  }
+  
+  &:hover {
+    background: rgba($color-success, 0.18);
+    border-color: rgba($color-success, 0.3);
+    box-shadow: 0 8px 16px rgba($color-success, 0.2);
   }
 }
 
 .moderate {
-  background-color: rgba($color-warning, 0.1);
+  background: rgba($color-warning, 0.12);
   border-left-color: $color-warning;
+  border: 1px solid rgba($color-warning, 0.2);
+  border-left-width: 4px;
   
-  .severity,
+  .severity {
+    color: color.adjust($color-warning, $lightness: -10%); // Updated
+    background: rgba($color-warning, 0.15);
+    border: 1px solid rgba($color-warning, 0.3);
+  }
+  
   .text {
-    color: color.adjust($color-warning, $lightness: -20%); 
+    color: color.adjust($color-warning, $lightness: -30%); // Updated
+  }
+  
+  &:hover {
+    background: rgba($color-warning, 0.18);
+    border-color: rgba($color-warning, 0.3);
+    box-shadow: 0 8px 16px rgba($color-warning, 0.2);
   }
 }
 
 .high {
-  background-color: rgba($color-danger, 0.1);
+  background: rgba($color-danger, 0.12);
   border-left-color: $color-danger;
+  border: 1px solid rgba($color-danger, 0.2);
+  border-left-width: 4px;
   
-  .severity,
+  .severity {
+    color: $color-danger;
+    background: rgba($color-danger, 0.15);
+    border: 1px solid rgba($color-danger, 0.3);
+  }
+  
   .text {
-    color: color.adjust($color-danger, $lightness: -10%); 
+    color: color.adjust($color-danger, $lightness: -20%); // Updated
+  }
+  
+  &:hover {
+    background: rgba($color-danger, 0.18);
+    border-color: rgba($color-danger, 0.3);
+    box-shadow: 0 8px 16px rgba($color-danger, 0.2);
+  }
+  
+  // Subtle pulse animation for high priority
+  animation: subtlePulse 3s ease-in-out infinite;
+  
+  @keyframes subtlePulse {
+    0%, 100% {
+      box-shadow: $shadow-sm, 0 0 0 0 rgba($color-danger, 0);
+    }
+    50% {
+      box-shadow: $shadow-sm, 0 0 0 4px rgba($color-danger, 0.1);
+    }
   }
 }

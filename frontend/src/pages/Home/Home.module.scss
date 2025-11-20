@@ -1,71 +1,77 @@
 @use '../../styles/mixins' as *;
 @use '../../styles/variables' as *;
-@use 'sass:color'; 
 
+// ============================================
+// HOME PAGE - Professional Portfolio Design
+// ============================================
 
 .home {
   min-height: 100vh;
-  padding: $spacing-md;
+  background: $gradient-primary;
+  position: relative;
+  overflow-x: hidden;
   
-  @include respond-to('md') {
-    padding: $spacing-xl;
+  // Animated gradient background
+  background-size: 200% 200%;
+  animation: gradientShift 15s ease infinite;
+  
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  
+  // Subtle overlay pattern
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+      radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+    pointer-events: none;
   }
 }
 
 .container {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
+  padding: $spacing-xl $spacing-md;
+  position: relative;
+  z-index: 1;
+  
+  @include respond-to('sm') {
+    padding: $spacing-2xl $spacing-lg;
+  }
+  
+  @include respond-to('lg') {
+    padding: $spacing-3xl $spacing-xl;
+  }
 }
 
-.searchSection {
-  display: flex;
-  gap: $spacing-md;
-  margin-bottom: $spacing-xl;
-  align-items: flex-start;
-  
-  @media (max-width: $breakpoint-md) {
-    flex-direction: column;
-  }
-    > :first-child {
-    flex: 1;
-  }
-}
-// Header
+// ============================================
+// HEADER
+// ============================================
+
 .header {
   text-align: center;
   margin-bottom: $spacing-2xl;
-  animation: fadeIn 0.6s ease-out;
-}
-
-.headerControls {
-  display: flex;
-  align-items: center;
-  gap: $spacing-md;
+  @include fade-in(0.6s);
+  
+  @include respond-to('lg') {
+    margin-bottom: $spacing-3xl;
+  }
 }
 
 .headerContent {
   @include flex-between;
   align-items: flex-start;
   gap: $spacing-lg;
+  max-width: 900px;
+  margin: 0 auto;
   
-  @media (max-width: $breakpoint-md) {
+  @include respond-below('md') {
     flex-direction: column;
     align-items: center;
-  }
-}
-
-.title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: $spacing-md;
-  font-size: $font-size-4xl;
-  font-weight: $font-weight-bold;
-  color: $color-white;
-  margin-bottom: $spacing-sm;
-  
-  @include respond-to('md') {
-    font-size: $font-size-5xl;
   }
 }
 
@@ -73,123 +79,283 @@
   flex: 1;
   text-align: left;
   
-  @media (max-width: $breakpoint-md) {
+  @include respond-below('md') {
     text-align: center;
   }
 }
 
-.icon {
-  font-size: $font-size-5xl;
+.title {
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  color: $color-white;
+  margin: 0 0 $spacing-sm 0;
+  line-height: $line-height-tight;
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  letter-spacing: -0.02em;
+  
+  @include respond-below('md') {
+    justify-content: center;
+  }
   
   @include respond-to('md') {
-    font-size: $font-size-6xl;
+    font-size: $font-size-4xl;
+  }
+  
+  @include respond-to('lg') {
+    font-size: $font-size-5xl;
+  }
+}
+
+.icon {
+  font-size: 1em;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+  animation: float 3s ease-in-out infinite;
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
   }
 }
 
 .subtitle {
-  font-size: $font-size-lg;
-  color: rgba($color-white, 0.9);
+  font-size: $font-size-base;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: $font-weight-normal;
   margin: 0;
+  line-height: $line-height-relaxed;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+  @include respond-to('md') {
+    font-size: $font-size-lg;
+  }
 }
 
+.headerControls {
+  @include fade-in(0.6s, 0.2s);
+}
+
+// SEARCH SECTION
+
+.searchSection {
+  max-width: 900px;
+  margin: 0 auto $spacing-xl;
+  @include fade-in(0.6s, 0.1s);
+  
+  // Unified card container
+  @include glass-secondary;
+  padding: $spacing-xl;
+  border-radius: $radius-2xl;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: $shadow-xl;
+  
+  @include respond-to('md') {
+    padding: $spacing-xl;
+  }
+}
+
+.searchContent {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  
+  @include respond-to('md') {
+    flex-direction: row;
+    align-items: stretch;
+  }
+}
+
+.searchBarWrapper {
+  flex: 1;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: $spacing-sm 0;
+  
+  @include respond-to('md') {
+    padding: 0 $spacing-md;
+  }
+  
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+  }
+  
+  @include respond-to('md') {
+    flex-direction: column;
+    
+    &::before,
+    &::after {
+      width: 1px;
+      height: auto;
+      background: linear-gradient(
+        to bottom,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+      );
+    }
+  }
+}
+
+.locationButtons {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  min-width: 200px;
+  
+  @include respond-to('md') {
+    justify-content: center;
+  }
+}
+
+// LOADING STATE
+
 .loading {
-  @include flex-column;
-  @include flex-center;
-  padding: $spacing-3xl;
-  animation: fadeIn 0.3s ease-out;
+  @include flex-column-center;
+  gap: $spacing-lg;
+  padding: $spacing-3xl $spacing-lg;
+  @include fade-in(0.3s);
 }
 
 .loadingText {
-  margin-top: $spacing-lg;
   color: $color-white;
   font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+// ERROR STATE
 
 .error {
-  @include card;
-  @include flex-center;
-  flex-direction: column;
-  padding: $spacing-2xl;
-  background-color: rgba($color-danger, 0.1);
-  border: 2px solid $color-danger;
-  animation: fadeIn 0.3s ease-out;
-}
-
-.errorMessage {
-  color: color.adjust($color-danger, $lightness: -10%); 
-  margin-bottom: $spacing-lg;
+  @include card-secondary;
+  max-width: 600px;
+  margin: $spacing-2xl auto;
+  padding: $spacing-xl;
+  @include fade-in(0.4s);
+  text-align: center;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.1);
 }
 
 .errorIcon {
   font-size: $font-size-5xl;
   margin-bottom: $spacing-md;
+  display: block;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
 }
 
 .errorContent {
-  text-align: center;
+  @include flex-column;
+  gap: $spacing-md;
+  align-items: center;
 }
 
 .errorTitle {
-  font-size: $font-size-xl;
-  color: $color-danger;
-  margin-bottom: $spacing-sm;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $color-white;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .errorMessage {
-  color: color.adjust($color-danger, $lightness: -10%);
-  margin-bottom: $spacing-lg;
+  font-size: $font-size-base;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: $line-height-relaxed;
+  margin: 0;
 }
 
+// WEATHER SECTION
+
 .weatherSection {
-  animation: fadeIn 0.5s ease-out;
+  max-width: 900px;
+  margin: 0 auto;
+  @include flex-column;
+  gap: $spacing-lg;
+  @include fade-in(0.5s);
 }
 
 .suggestions {
-  margin-top: $spacing-xl;
+  @include card-secondary;
+  padding: $spacing-xl;
+  @include fade-in(0.6s, 0.2s);
 }
 
 .suggestionsTitle {
   font-size: $font-size-xl;
-  font-weight: $font-weight-bold;
+  font-weight: $font-weight-semibold;
   color: $color-white;
-  text-align: center;
-  margin-bottom: $spacing-lg;
+  margin: 0 0 $spacing-lg 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
 }
 
 .suggestionsList {
-  @include card;
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: $spacing-md;
 }
 
 .actions {
-  margin-top: $spacing-xl;
   text-align: center;
+  padding-top: $spacing-lg;
+  @include fade-in(0.6s, 0.3s);
 }
 
+// EMPTY STATE
+
 .emptyState {
-  @include flex-column;
-  @include flex-center;
-  padding: $spacing-3xl;
+  @include flex-column-center;
+  gap: $spacing-lg;
+  padding: $spacing-4xl $spacing-lg;
   text-align: center;
-  animation: fadeIn 0.5s ease-out;
+  @include fade-in(0.5s);
 }
 
 .emptyIcon {
   font-size: $font-size-6xl;
-  margin-bottom: $spacing-lg;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+  animation: float 3s ease-in-out infinite;
 }
 
 .emptyTitle {
-  font-size: $font-size-2xl;
+  font-size: $font-size-3xl;
   font-weight: $font-weight-bold;
   color: $color-white;
-  margin-bottom: $spacing-sm;
+  margin: 0;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  
+  @include respond-to('md') {
+    font-size: $font-size-4xl;
+  }
 }
 
 .emptyText {
   font-size: $font-size-lg;
-  color: rgba($color-white, 0.8);
-  max-width: 400px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: $line-height-relaxed;
+  max-width: 500px;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }

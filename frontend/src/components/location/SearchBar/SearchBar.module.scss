@@ -2,17 +2,85 @@
 @use '../../../styles/variables' as *;
 
 .searchBar {
-  @include card;
+  @include glass-secondary;
   display: flex;
-  gap: $spacing-sm;
-  padding: $spacing-md;
+  gap: $spacing-md;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+  border-radius: $radius-xl;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.15);
+  transition: all $transition-base;
+  position: relative;
+  
+  // Subtle gradient overlay
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      transparent 100%
+    );
+    border-radius: inherit;
+    pointer-events: none;
+  }
+  
+  // Focus-within effect
+  &:focus-within {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: $shadow-lg, 0 0 0 3px rgba(255, 255, 255, 0.1);
+  }
   
   @include respond-to('sm') {
     padding: $spacing-lg;
+    gap: $spacing-md;
   }
 }
 
 .input {
   flex: 1;
   margin: 0;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: $radius-lg;
+  padding: $spacing-sm $spacing-md;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $color-gray-900;
+  transition: all $transition-base;
+  
+  &::placeholder {
+    color: $color-gray-400;
+    font-weight: $font-weight-normal;
+  }
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(0, 0, 0, 0.15);
+  }
+  
+  &:focus {
+    outline: none;
+    background: $color-white;
+    border-color: $color-primary;
+    box-shadow: 0 0 0 3px rgba($color-primary, 0.1);
+  }
+  
+  @include respond-to('sm') {
+    padding: $spacing-md $spacing-lg;
+    font-size: $font-size-lg;
+  }
+}
+
+// If you have a button in SearchBar
+.button {
+  white-space: nowrap;
+  min-width: auto;
+  
+  @include respond-to('sm') {
+    min-width: 120px;
+  }
 }

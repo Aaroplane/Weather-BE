@@ -15,41 +15,77 @@
 
 .locationButton,
 .mockButton {
+  @include button-secondary;
   backdrop-filter: blur(10px);
   flex: 1;
   min-width: 160px;
+  position: relative;
+  overflow: hidden;
   
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
   color: $color-white !important;
+  font-weight: $font-weight-medium !important;
+  box-shadow: $shadow-sm;
+  
+  // Gradient overlay
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
   
   &:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.15) !important;
-    border-color: rgba(255, 255, 255, 0.3) !important;
+    background: rgba(255, 255, 255, 0.18) !important;
+    border-color: rgba(255, 255, 255, 0.35) !important;
+    box-shadow: $shadow-md;
+    transform: translateY(-2px);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
   }
 }
 
 .mockButton {
-  background: rgba(59, 130, 246, 0.1) !important;
-  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  // Blue tint for mock button
+  background: rgba(102, 126, 234, 0.15) !important;
+  border-color: rgba(102, 126, 234, 0.35) !important;
   
   &:hover:not(:disabled) {
-    background: rgba(59, 130, 246, 0.2) !important;
+    background: rgba(102, 126, 234, 0.25) !important;
+    border-color: rgba(102, 126, 234, 0.5) !important;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
   }
 }
 
 .icon {
   font-size: $font-size-lg;
   margin-right: $spacing-xs;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 .error {
   padding: $spacing-sm $spacing-md;
-  background: rgba($color-danger, 0.1);
-  border: 1px solid rgba($color-danger, 0.3);
-  border-radius: $radius-md;
+  background: rgba($color-danger, 0.15);
+  border: 1px solid rgba($color-danger, 0.4);
+  border-radius: $radius-lg;
   color: $color-white;
   font-size: $font-size-xs;
   text-align: center;
-  line-height: 1.4;
+  line-height: $line-height-relaxed;
+  box-shadow: 0 4px 12px rgba($color-danger, 0.2);
+  @include fade-in(0.3s);
+  
+  // Warning icon styling
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-xs;
 }

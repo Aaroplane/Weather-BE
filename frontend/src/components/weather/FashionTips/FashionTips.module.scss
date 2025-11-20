@@ -2,72 +2,160 @@
 @use '../../../styles/mixins' as *;
 
 .fashionTips {
-  @include glass;
+  @include glass-secondary;
   border-radius: $radius-xl;
   padding: $spacing-lg;
   margin-top: $spacing-lg;
-  animation: fadeIn 0.5s ease-out;
+  @include fade-in(0.5s, 0.2s);
+  position: relative;
+  overflow: hidden;
+  
+  // Better contrast - lighter background
+  background: rgba(255, 255, 255, 0.18) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: $shadow-lg, 0 0 40px rgba(0, 0, 0, 0.1);
+  
+  // Subtle gradient overlay
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
+  
+  // Hover effect
+  transition: all $transition-base;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.22) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    box-shadow: $shadow-xl, 0 0 50px rgba(0, 0, 0, 0.15);
+  }
 }
 
 .header {
   @include flex-between;
   cursor: pointer;
   user-select: none;
+  position: relative;
+  z-index: 1;
+  padding: $spacing-xs;
+  margin: -$spacing-xs;
+  border-radius: $radius-lg;
+  transition: background $transition-base;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  
+  &:active {
+    transform: scale(0.99);
+  }
 
   h3 {
     margin: 0;
     font-size: $font-size-xl;
     font-weight: $font-weight-semibold;
     color: $color-white;
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    line-height: $line-height-tight;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 }
 
 .expandButton {
-  background: none;
-  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: $radius-md;
   color: $color-white;
-  font-size: $font-size-base;
+  font-size: $font-size-sm;
   cursor: pointer;
-  padding: $spacing-sm;
-  transition: transform $transition-base;
+  padding: $spacing-xs $spacing-sm;
+  transition: all $transition-base;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
 
   &:hover {
-    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+  }
+  
+  &:active {
+    transform: scale(0.95);
   }
 
   &:focus-visible {
-    @include focus-ring;
+    @include focus-ring($color-white);
   }
 }
 
 .summary {
   margin-top: $spacing-md;
   font-size: $font-size-base;
-  color: rgba(255, 255, 255, 0.9);
-  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.95);
+  line-height: $line-height-relaxed;
+  position: relative;
+  z-index: 1;
+  font-weight: $font-weight-medium;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .details {
   margin-top: $spacing-lg;
-  animation: fadeIn 0.3s ease-out;
+  @include fade-in(0.3s);
+  position: relative;
+  z-index: 1;
 }
 
 .section {
-  margin-bottom: $spacing-lg;
+  margin-bottom: $spacing-xl;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
 
   h4 {
-    margin: 0 0 $spacing-sm 0;
-    font-size: $font-size-base;
-    font-weight: $font-weight-medium;
+    margin: 0 0 $spacing-md 0;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
     color: $color-white;
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    letter-spacing: -0.01em;
   }
 }
 
 .layer {
+  background: rgba(255, 255, 255, 0.08);
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-md;
   margin-bottom: $spacing-sm;
   font-size: $font-size-sm;
-  color: rgba(255, 255, 255, 0.8);
-  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: $line-height-relaxed;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all $transition-base;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
 
   strong {
     color: $color-white;
@@ -81,32 +169,48 @@
   margin: 0;
 
   li {
-    padding: $spacing-sm 0;
+    padding: $spacing-sm $spacing-md;
     font-size: $font-size-sm;
-    color: rgba(255, 255, 255, 0.8);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-
+    color: rgba(255, 255, 255, 0.9);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    line-height: $line-height-relaxed;
+    transition: all $transition-fast;
+    border-radius: $radius-sm;
+    margin-bottom: $spacing-xs;
+    
     &:last-child {
       border-bottom: none;
+      margin-bottom: 0;
+    }
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      padding-left: calc($spacing-md + 4px);
     }
 
     &:before {
       content: '•';
       margin-right: $spacing-sm;
       color: $color-primary-light;
+      font-weight: $font-weight-bold;
+      font-size: $font-size-lg;
+      line-height: 1;
+      vertical-align: middle;
     }
   }
 }
 
 .feedback {
-  margin-top: $spacing-lg;
+  margin-top: $spacing-xl;
   padding-top: $spacing-lg;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
 
   p {
     margin: 0 0 $spacing-md 0;
     font-size: $font-size-sm;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: $font-weight-medium;
+    text-align: center;
   }
 }
 
@@ -117,20 +221,24 @@
   .helpfulButton,
   .notHelpfulButton {
     flex: 1;
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
     color: $color-white !important;
+    font-weight: $font-weight-medium !important;
+    transition: all $transition-base !important;
   }
 
   .helpfulButton:hover:not(:disabled) {
-    background: rgba($color-success, 0.2) !important;
-    border-color: rgba($color-success, 0.5) !important;
+    background: rgba($color-success, 0.25) !important;
+    border-color: rgba($color-success, 0.6) !important;
+    box-shadow: 0 4px 12px rgba($color-success, 0.3) !important;
     transform: translateY(-2px);
   }
 
   .notHelpfulButton:hover:not(:disabled) {
-    background: rgba($color-danger, 0.2) !important;
-    border-color: rgba($color-danger, 0.5) !important;
+    background: rgba($color-danger, 0.25) !important;
+    border-color: rgba($color-danger, 0.6) !important;
+    box-shadow: 0 4px 12px rgba($color-danger, 0.3) !important;
     transform: translateY(-2px);
   }
 }
@@ -138,17 +246,32 @@
 .thankYou {
   margin-top: $spacing-lg;
   padding: $spacing-md;
-  background: rgba($color-success, 0.1);
-  border: 1px solid rgba($color-success, 0.3);
-  border-radius: $radius-md;
+  background: rgba($color-success, 0.15);
+  border: 1px solid rgba($color-success, 0.4);
+  border-radius: $radius-lg;
   color: $color-white;
   text-align: center;
   font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  @include fade-in(0.3s);
+  box-shadow: 0 4px 12px rgba($color-success, 0.2);
 }
 
 .loading {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.8);
   text-align: center;
-  padding: $spacing-md;
+  padding: $spacing-xl;
   font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  
+  &::after {
+    content: '...';
+    animation: ellipsis 1.5s infinite;
+  }
+  
+  @keyframes ellipsis {
+    0%, 20% { content: '.'; }
+    40% { content: '..'; }
+    60%, 100% { content: '...'; }
+  }
 }
